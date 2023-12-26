@@ -1,0 +1,6 @@
+{
+  "name": "Test Token",
+  "symbol": "TEST",
+  "description": "Fully reserved fiat-backed stablecoin created by Circle.",
+  "image": "https://www.circle.com/hs-fs/hubfs/sundaes/USDC.png?width=540&height=540&name=USDC.png"
+}

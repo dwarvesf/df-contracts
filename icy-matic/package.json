@@ -35,7 +35,7 @@
     "abis/**",
     "artifacts/**",
     ".build-openzeppelin/**",
-    "contracts/**",
+    "icy-matic/contracts/**",
     "deployments/**",
     "deploy/**",
     "js/**"
