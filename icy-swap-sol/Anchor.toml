@@ -1,0 +1,20 @@
+[toolchain]
+
+[features]
+seeds = false
+skip-lint = false
+
+[programs.localnet]
+icy_swap_sol = "4g6779PDmQjoCKUwhbjwgBQ3FkfgTgEPsXwwUcGkgq4A"
+[programs.devnet]
+icy_swap_sol = "4g6779PDmQjoCKUwhbjwgBQ3FkfgTgEPsXwwUcGkgq4A"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "wallet.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
