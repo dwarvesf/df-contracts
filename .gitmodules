@@ -1,0 +1,3 @@
+[submodule "icy-swap-evm"]
+	path = icy-swap-evm
+	url = https://github.com/dwarvesf/contract-icy-swap
