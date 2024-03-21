@@ -30,6 +30,16 @@ if (process.env.PRIVATE_KEY) {
     // url: 'https://rpc.ankr.com/fantom/',
     url: "https://rpc.ftm.tools/",
   };
+  networks.base = {
+    accounts: [process.env.PRIVATE_KEY],
+    chainId: 8453,
+    url: "https://mainnet.base.org",
+  };
+  networks.basesepolia = {
+    accounts: [process.env.PRIVATE_KEY],
+    chainId: 84532,
+    url: "https://sepolia.base.org",
+  };
 }
 
 module.exports = networks;
