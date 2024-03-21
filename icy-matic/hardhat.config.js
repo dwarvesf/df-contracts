@@ -22,7 +22,7 @@ module.exports = {
     flat: true,
   },
   etherscan: {
-    apiKey: "D3PRBB2F5Y7PCWS98BJDJHDUHJ1AIDQZ8T",
+    apiKey: process.env.BASESCAN_API_KEY,
     customChains: [
       {
         network: "base",
