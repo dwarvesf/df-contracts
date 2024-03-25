@@ -29,8 +29,9 @@ describe("Nft", function () {
     describe("Deployment",  function () {
         it("Check mint nft", async function () {
             const { nft, owner, otherAccount} = await loadFixture(deployNftContract);
-            await nft.mint(otherAccount.address, 1)
-            expect(await nft.totalMaxSupplyOfItem(1)).to.equal(1);
+            await nft.mint(otherAccount.address, 10)
+            console.log(await nft.getTokenAttribute(1))
+            expect(await nft.totalMaxSupplyOfItem(10)).to.equal(1);
         });
 
         it("update other attribute ", async function () {
