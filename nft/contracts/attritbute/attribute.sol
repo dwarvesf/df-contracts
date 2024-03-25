@@ -100,7 +100,7 @@ contract Attributes {
         _attribute.quantity = 2;
         _attribute.duration = 200;
         _attribute.boostStaking = 15;
-        _attribute.consumables = "jarngreipr";
+        _attribute.consumables = unicode"járngreipr";
         _attribute.icon = "";
         _attribute.description = "";
     }
@@ -184,7 +184,7 @@ contract Attributes {
         _attribute.quantity = 3;
         _attribute.duration = 100;
         _attribute.boostStaking = 7;
-        _attribute.consumables = "voluspa";
+        _attribute.consumables = unicode"völuspá";
         _attribute.icon = "";
         _attribute.description = "";
     }
