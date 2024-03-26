@@ -32,8 +32,8 @@ describe("NFTFactory", function () {
 
             const nftContractAddress = await factory.nftArray(0);
             const nft = await hre.ethers.getContractAt("Nft", nftContractAddress);
-            await nft.mint(otherAccount.address, 1)
-            expect(await nft.totalMaxSupply()).to.equal(1);
+            await nft.mint(otherAccount.address)
+            expect(await nft.totalMaxSupplyOfToken()).to.equal(1);
         });
 
     });
