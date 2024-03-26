@@ -88,6 +88,7 @@ J  -->  M
 ```
 #### 2. How Reward Rate is calculated
 Here's a breakdown of how `rewardRate` it's determined:
+
 **Condition:** The calculation depends on whether the current block timestamp (`block.timestamp`) has reached or surpassed the  `periodFinish`  (end of the current reward distribution period).
 
 **Cases:**
