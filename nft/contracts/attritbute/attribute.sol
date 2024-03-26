@@ -82,7 +82,7 @@ contract Attributes {
     }
 
     function swordOfLoki() public pure returns (attribute memory _attribute) {
-        _attribute.id = 1;
+        _attribute.id = 2;
         _attribute.tier = 1;
         _attribute.rarity = 5;
         _attribute.quantity = 1;
