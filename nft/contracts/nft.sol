@@ -27,8 +27,6 @@ contract Nft is ERC721, AccessControl, Ownable  {
 
     uint public maxItemId = 25;
     uint public minItemId = 1;
-    uint public totalAllItemSupply = 0;
-    uint public totalAllItemQuantity = 100;
 
     uint public tier1Weight = 5;
     uint public tier2Weight = 25;
@@ -36,25 +34,26 @@ contract Nft is ERC721, AccessControl, Ownable  {
     uint public tier4Weight = 300;
     uint public tier5Weight = 500;
 
-    uint public itemPerTier = 5;
-
-    uint public randNonce = 0;
-
-    uint[] public items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
-
     // item attribute
     attributes public _attributes;
 
+    uint public randNonce = 0;
+
+    uint[] private items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+
     string private _baseTokenURI;
+    uint private totalAllItemSupply = 0;
+    uint private totalAllItemQuantity = 100;
+    uint private itemPerTier = 5;
 
     // Access Control roles
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+    bytes32 private constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     // Mapping token id to item id
-    mapping (uint256=>uint) public mapTokenIdWithItem;
+    mapping (uint256=>uint) private mapTokenIdWithItem;
 
     // Mapping total supply of item id
-    mapping (uint=>uint256) public mapItemSupply;
+    mapping (uint=>uint256) private mapItemSupply;
 
     constructor(string memory _name, string memory _symbol, address initialOwner, address _attributeAddress) Ownable(initialOwner) ERC721(_name, _symbol) {
         _attributes = attributes(_attributeAddress);
@@ -175,19 +174,31 @@ contract Nft is ERC721, AccessControl, Ownable  {
         return newTokenId;
     }
 
+    // @return The attribute of token id
     function getTokenAttribute(uint256 _tokenId) public view returns(attributes.attribute memory _attribute) {
         attributes.attribute memory _attr = _attributes.attribute_by_id(mapTokenIdWithItem[_tokenId]);
         return _attr;
     }
 
+    // @return The attribute of item id
+    function getItemAttribute(uint _itemId) public view returns (attributes.attribute memory _attribute) {
+        attributes.attribute memory _attr = _attributes.attribute_by_id(_itemId);
+        return _attr;
+    }
+
     // @return The total supply of item id
-    function totalMaxSupplyOfItem(uint _item_id) public view returns (uint256) {
-        return mapItemSupply[_item_id];
+    function totalMaxSupplyOfItem(uint _itemId) public view returns (uint256) {
+        return mapItemSupply[_itemId];
     }
 
     // @return The total supply of all items
     function totalMaxSupplyOfItems() public view returns (uint256) {
         return totalAllItemSupply;
+    }
+
+    // @return The total quantity of all items
+    function totalQuantityOfItems() public view returns (uint256) {
+        return totalAllItemQuantity;
     }
 
     // @return The total supply of token
