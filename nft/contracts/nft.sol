@@ -4,6 +4,7 @@ pragma solidity ^0.8.23;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 interface attributes {
     struct attribute {
@@ -44,6 +45,8 @@ contract Nft is ERC721, AccessControl, Ownable  {
     // item attribute
     attributes public _attributes;
 
+    string private _baseTokenURI;
+
     // Access Control roles
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
@@ -70,6 +73,24 @@ contract Nft is ERC721, AccessControl, Ownable  {
         _grantRole(OPERATOR_ROLE, _operatorAddress);
     }
 
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function setBaseURI(string memory baseURI) public onlyOwner {
+        _baseTokenURI = baseURI;
+    }
+
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(mapTokenIdWithItem[_tokenId] != 0, "ERC721Metadata: URI query for nonexistent token");
+
+        string memory base = _baseURI();
+
+        uint itemId = mapTokenIdWithItem[_tokenId];
+
+        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        return string(abi.encodePacked(base, Strings.toString(itemId)));
+    }
 
     function mint(address recipient) public payable returns (uint256)  {
         require(hasRole(OPERATOR_ROLE, msg.sender) || msg.sender == owner(), "not owner or operator role");
