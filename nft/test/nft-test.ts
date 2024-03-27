@@ -330,9 +330,6 @@ describe("Nft", function () {
             await nft.mint(otherAccount.address)
             attr = await nft.getTokenAttribute(100);
             console.log(attr)
-            await nft.mint(otherAccount.address)
-            attr = await nft.getTokenAttribute(101);
-            console.log(attr)
         });
 
         it("update other attribute ", async function () {
@@ -341,6 +338,15 @@ describe("Nft", function () {
             const attr = await nft.getTokenAttribute(1);
             await nft.setNewAttribute(attributeOther.target)
             expect(await nft.totalMaxSupplyOfItem(attr.id)).to.equal(0);
+        });
+
+
+        it("get token uri ", async function () {
+            const { nft, owner, otherAccount, attributeOther} = await loadFixture(deployNftContract);
+            await nft.setBaseURI("https://ipfs/df/")
+            await nft.mint(otherAccount.address)
+            const attr = await nft.getTokenAttribute(1);
+            expect(await nft.tokenURI(1)).to.equal("https://ipfs/df/" + attr.id.toString());
         });
 
     });
