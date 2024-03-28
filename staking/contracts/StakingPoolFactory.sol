@@ -18,9 +18,9 @@ contract StakingPoolFactory is Ownable {
 
     struct PoolInfo {
         address stakingPoolAddress;
-        address stakingToken;  
+        address stakingToken;
         address rewardToken;
-        uint rewardAmount;  // The initial amount of reward tokens allocated (set during deployment in deploy)
+        uint rewardAmount; // The initial amount of reward tokens allocated (set during deployment in deploy)
         uint rewardProgressAmount; // Tracks the total amount of reward tokens already distributed to the staking pool contract.
         uint rewardTotalAmount; // The total amount of reward tokens planned for distribution (can be higher than rewardAmount).
     }
@@ -41,7 +41,6 @@ contract StakingPoolFactory is Ownable {
     }
 
     ///// permissioned functions
-
     // deploy a staking reward contract for the staking token, and store the reward amount
     // the reward will be distributed to the staking reward contract no sooner than the genesis
     function deploy(
@@ -78,7 +77,6 @@ contract StakingPoolFactory is Ownable {
     }
 
     ///// permissionless functions
-
     // call notifyRewardAmount for all staking tokens.
     function notifyRewardAmounts() public onlyOwner {
         require(
@@ -138,6 +136,22 @@ contract StakingPoolFactory is Ownable {
                 rewardAmount
             );
         }
+    }
+
+    function recoverERC20FundFromPool(
+        string memory poolKey,
+        address tokenAddress,
+        uint256 tokenAmount
+    ) public onlyOwner {
+        PoolInfo storage info = stakingPoolInfoByStakingToken[poolKey];
+        require(
+            info.stakingPoolAddress != address(0),
+            "StakingPoolFactory::notifyRewardAmount: not deployed"
+        );
+        StakingPool(info.stakingPoolAddress).recoverERC20(
+            tokenAddress,
+            tokenAmount
+        );
     }
 
     function getStakingPoolKey(

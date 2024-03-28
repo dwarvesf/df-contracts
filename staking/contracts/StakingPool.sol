@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 // Inheritance
 import "./interfaces/IStakingPool.sol";
@@ -13,7 +14,7 @@ import "./RewardDistributor.sol";
 
 import "./libs/SafeMath.sol";
 
-contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard {
+contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard, Pausable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -22,7 +23,7 @@ contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard {
     IERC20 public stakingToken;
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 24 hours;
+    uint256 public rewardsDuration = 86400; // 1 day period
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
@@ -85,7 +86,7 @@ contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard {
     /* ========== MUTATIVE FUNCTIONS ========== */
     function deposit(
         uint256 amount
-    ) external nonReentrant updateReward(msg.sender) {
+    ) external nonReentrant whenNotPaused updateReward(msg.sender) {
         require(amount > 0, "Cannot deposit zero amount");
 
         // Check allowance before transfer
@@ -156,6 +157,21 @@ contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard {
         emit RewardAdded(reward);
     }
 
+    function setRewardsDuration(uint256 _rewardsDuration) external onlyRewardsDistributor {
+        require(
+            block.timestamp > periodFinish,
+            "Previous rewards period must be complete before changing the duration for the new period"
+        );
+        rewardsDuration = _rewardsDuration;
+        emit RewardsDurationUpdated(rewardsDuration);
+    }
+
+    function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyRewardsDistributor {
+        require(tokenAddress != address(stakingToken), "Cannot withdraw the staking token");
+        IERC20(tokenAddress).safeTransfer(rewardsDistributor, tokenAmount);
+        emit Recovered(tokenAddress, tokenAmount);
+    }
+
     /* ========== MODIFIERS ========== */
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -172,4 +188,6 @@ contract StakingPool is IStakingPool, RewardsDistributor, ReentrancyGuard {
     event Deposited(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+    event RewardsDurationUpdated(uint256 newDuration);
+    event Recovered(address token, uint256 amount);
 }
