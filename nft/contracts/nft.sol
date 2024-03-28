@@ -91,7 +91,7 @@ contract Nft is ERC721, AccessControl, Ownable  {
         return string(abi.encodePacked(base, Strings.toString(itemId)));
     }
 
-    function mint(address recipient) public payable returns (uint256)  {
+    function mint(address recipient, uint _luckyWeight) public payable returns (uint256)  {
         require(hasRole(OPERATOR_ROLE, msg.sender) || msg.sender == owner(), "not owner or operator role");
         require(totalAllItemSupply < totalAllItemQuantity, "Exceeded max limit of allowed all items mint");
 
@@ -118,9 +118,11 @@ contract Nft is ERC721, AccessControl, Ownable  {
             attributes.attribute memory _attribute = _attributes.attribute_by_id(items[i]);
             // calculate weight for item
             if (_attribute.tier == 1) {
-                weightOfItem[i] = tier1Weight/itemPerTier;
+                // weight of item tier1 = tier1Weight/itemPerTier1 + _luckyWeight/(itemPerTier1 + itemPerTier2)
+                weightOfItem[i] = tier1Weight/itemPerTier + _luckyWeight/(itemPerTier*2);
             } else if (_attribute.tier == 2) {
-                weightOfItem[i] = tier2Weight/itemPerTier;
+                // weight of item tier2 = tier2Weight/itemPerTier2 + _luckyWeight/(itemPerTier1 + itemPerTier2)
+                weightOfItem[i] = tier2Weight/itemPerTier + _luckyWeight/(itemPerTier*2);
             } else if (_attribute.tier == 3) {
                 weightOfItem[i] = tier3Weight/itemPerTier;
             } else if (_attribute.tier == 4) {
