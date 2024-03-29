@@ -6,7 +6,7 @@ async function main() {
     await attributes.waitForDeployment();
 
     console.log('NFT Contract Deployed at ' + attributes.target);
-    // 0x5cFe1538bAd0a4835A8DE936246CC9960E91D209
+    // 0xa38b3fdBD9EfBdcf06921843dd88baB36d720f59
 }
 
 // We recommend this pattern to be able to use async/await everywhere

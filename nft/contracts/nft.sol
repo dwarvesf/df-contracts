@@ -14,9 +14,7 @@ interface attributes {
         uint8 quantity;
         uint8 boostStaking;
         uint256 duration;
-        string icon;
         string consumables;
-        string description;
     }
 
     function attribute_by_id(uint _id) external pure returns(attribute memory _attribute);
@@ -31,7 +29,7 @@ contract Nft is ERC721, AccessControl, Ownable  {
     uint public tier1Weight = 5;
     uint public tier2Weight = 25;
     uint public tier3Weight = 120;
-    uint public tier4Weight = 300;
+    uint public tier4Weight = 350;
     uint public tier5Weight = 500;
 
     // item attribute
@@ -188,6 +186,18 @@ contract Nft is ERC721, AccessControl, Ownable  {
         return _attr;
     }
 
+    // @return The boostStaking of token id
+    function getBoostStakingOfToken(uint256 _tokenId) public view returns (uint8 ) {
+        attributes.attribute memory _attr = _attributes.attribute_by_id(mapTokenIdWithItem[_tokenId]);
+        return _attr.boostStaking;
+    }
+
+    // @return The duration of token id
+    function getDurationOfToken(uint256 _tokenId) public view returns (uint256 ) {
+        attributes.attribute memory _attr = _attributes.attribute_by_id(mapTokenIdWithItem[_tokenId]);
+        return _attr.duration;
+    }
+
     // @return The total supply of item id
     function totalMaxSupplyOfItem(uint _itemId) public view returns (uint256) {
         return mapItemSupply[_itemId];
@@ -216,6 +226,11 @@ contract Nft is ERC721, AccessControl, Ownable  {
     // @return max of item id
     function getMaxItemId() public view returns (uint256) {
         return maxItemId;
+    }
+
+    // @return base uri
+    function getBaseUri() public view returns (string memory) {
+        return _baseTokenURI;
     }
 
     function supportsInterface(bytes4 interfaceId)
