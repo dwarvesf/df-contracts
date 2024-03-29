@@ -256,7 +256,7 @@ contract Attributes {
         _attribute.quantity = 5;
         _attribute.duration = 30;
         _attribute.boostStaking = 3;
-        _attribute.consumables = "galdrar";
+        _attribute.consumables = "crow feather";
         _attribute.icon = "";
         _attribute.description = "";
     }
