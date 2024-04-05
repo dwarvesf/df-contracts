@@ -34,7 +34,7 @@ describe('SBFactory', function () {
     // Mint token ID 1 to the owner
     await soulbound.safeMint(owner.address);
     expect(await soulbound.ownerOf(0)).to.equal(owner.address);
-    const approve = soulbound.approve("0x000000000000000000000000000000000000dEaD", 1);
+    await soulbound.approve("0x000000000000000000000000000000000000dEaD", 1);
 
     await expect(soulbound["safeTransferFrom(address,address,uint256)"](
       owner.address, 
@@ -52,7 +52,7 @@ describe('SBFactory', function () {
     // Mint token ID 1 to the owner
     await soulbound.safeMint(owner.address);
     expect(await soulbound.ownerOf(0)).to.equal(owner.address);
-    const approve = soulbound.approve("0x000000000000000000000000000000000000dEaD", 1);
+    await soulbound.approve("0x000000000000000000000000000000000000dEaD", 1);
 
     await expect(soulbound["transferFrom(address,address,uint256)"](
       owner.address, 

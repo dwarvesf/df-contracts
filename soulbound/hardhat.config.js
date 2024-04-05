@@ -9,7 +9,13 @@ module.exports = {
   solidity: "0.8.24",
   networks: {
     base: {
-      url: "https://mainnet.base.org",
+      url: "https://base-mainnet.g.alchemy.com/v2/i3masvvs6gsvF11qhLbS6guwihL5G1lz",
+      accounts: [PRIVATE_KEY],
+      gasPrice: 1000000000,
+
+    },
+    basesepolia: {
+      url: "https://sepolia.base.org",
       accounts: [PRIVATE_KEY],
     },
   },

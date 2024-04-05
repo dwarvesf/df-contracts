@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Soulbound is ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextTokenId;
+    string public baseTokenURI;
 
     constructor(string memory name, string memory symbol, address initialOwner)
         ERC721(name, symbol)
@@ -41,6 +42,14 @@ contract Soulbound is ERC721, ERC721URIStorage, Ownable {
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    } 
+
+    function setBaseURI(string memory baseURI) public onlyOwner {
+      baseTokenURI = baseURI;
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseTokenURI;
     }
 
     function supportsInterface(bytes4 interfaceId)
