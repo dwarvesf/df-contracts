@@ -1,6 +1,10 @@
-## Foundry
+## Icy Btc Contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This contract will be used as a component in icy-btc swap feature. Main responsibilities
+
+- Icy Burner
+- Emit log after burn
+- Set signer
 
 Foundry consists of:
 

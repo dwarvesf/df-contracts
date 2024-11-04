@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract IcyBtcSwap {
+import "solmate/auth/Owned.sol";
+import "solmate/utils/ECDSA.sol";
+
+contract IcyBtcSwap is Owned {
     address public signerAddress;
 
     event Swap(uint256 amount, string btcAddress, string btcAmount);
