@@ -10,3 +10,6 @@
 [submodule "icy-btc/lib/solmate"]
 	path = icy-btc/lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "icy-btc/lib/solady"]
+	path = icy-btc/lib/solady
+	url = https://github.com/vectorized/solady
