@@ -4,3 +4,6 @@
 [submodule "dfg-bridge"]
 	path = dfg-bridge
 	url = https://github.com/dwarvesf/dfg-bridge
+[submodule "icy-btc/lib/forge-std"]
+	path = icy-btc/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
