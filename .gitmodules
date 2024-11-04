@@ -7,3 +7,6 @@
 [submodule "icy-btc/lib/forge-std"]
 	path = icy-btc/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "icy-btc/lib/solmate"]
+	path = icy-btc/lib/solmate
+	url = https://github.com/transmissions11/solmate
