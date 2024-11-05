@@ -2,17 +2,18 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
+import {IcyBtcSwap} from "../src/IcyBtcSwap.sol";
 
 contract CounterScript is Script {
-    Counter public counter;
+    IcyBtcSwap public icyBtcSwap;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
 
-        counter = new Counter();
+        address icy = address(0xF289E3b222dd42B185b7E335fA3C5bd6D132441D);
+        icyBtcSwap = new IcyBtcSwap(icy);
 
         vm.stopBroadcast();
     }

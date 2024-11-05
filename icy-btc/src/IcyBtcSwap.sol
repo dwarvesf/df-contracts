@@ -38,9 +38,9 @@ contract IcyBtcSwap is Owned, EIP712 {
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(ERC20 _icy) Owned(msg.sender) {
+    constructor(address _icy) Owned(msg.sender) {
         signerAddress = msg.sender;
-        icy = _icy;
+        icy = ERC20(_icy);
     }
 
     function swap(
