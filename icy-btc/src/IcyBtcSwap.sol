@@ -24,7 +24,12 @@ contract IcyBtcSwap is Owned, EIP712 {
 
     bytes32 public constant SWAP_HASH =
         keccak256(
-            "Swap(uint256 icyAmount,string btcAddress,uint256 btcAmountuint256 deadline)"
+            "Swap(uint256 icyAmount,string btcAddress,uint256 btcAmount,uint256 nonce,uint256 deadline)"
+        );
+
+    bytes32 public constant REVERT_ICY_HASH =
+        keccak256(
+            "RevertIcy(uint256 icyAmount,string btcAddress,uint256 btcAmount,uint256 nonce,uint256 deadline)"
         );
 
     /*//////////////////////////////////////////////////////////////
@@ -33,6 +38,8 @@ contract IcyBtcSwap is Owned, EIP712 {
 
     address public signerAddress;
     ERC20 public icy;
+    mapping(bytes32 => bool) public swappedHashes;
+    mapping(bytes32 => bool) public revertedIcyHashes;
 
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
@@ -47,26 +54,34 @@ contract IcyBtcSwap is Owned, EIP712 {
         uint256 icyAmount,
         string memory btcAddress,
         uint256 btcAmount,
+        uint256 nonce,
         uint256 deadline,
         bytes memory _signature
     ) external {
         // 1.0 Check daedline is excceded
         require(block.timestamp <= deadline, "EXCEEDED_DEADLINE");
 
-        // 2.0 Check valid signer
+        // 2.0 Check if the swap hash is already processed
         bytes32 swapHash = getSwapHash(
             icyAmount,
             btcAddress,
             btcAmount,
+            nonce,
             deadline
         );
+        require(!swappedHashes[swapHash], "ALREADY_PROCESSED");
+
+        // 3.0 Check if the signer is valid
         address signer = getSigner(swapHash, _signature);
         require(signer == signerAddress, "INVALID_SIGNER");
 
-        // 3.0 burn icy: by basically transfer icy to this contract
+        // 4.0 burn icy: by basically transfer icy to this contract
         icy.safeTransferFrom(msg.sender, address(this), icyAmount);
 
-        // 4.0 emit swap event
+        // 5.0 Update processed hashes
+        swappedHashes[swapHash] = true;
+
+        // 6.0 emit swap event
         emit Swap(icyAmount, btcAddress, btcAmount);
     }
 
@@ -74,22 +89,31 @@ contract IcyBtcSwap is Owned, EIP712 {
         uint256 icyAmount,
         string memory btcAddress,
         uint256 btcAmount,
+        uint256 nonce,
         uint256 deadline,
         bytes memory _signature
     ) external {
-        bytes32 swapHash = getSwapHash(
+        // 1.0 Check daedline is excceded
+        require(block.timestamp <= deadline, "EXCEEDED_DEADLINE");
+
+        // 2.0 Check if the swap hash is already processed
+        bytes32 revertHash = getRevertIcyHash(
             icyAmount,
             btcAddress,
             btcAmount,
+            nonce,
             deadline
         );
-        address signer = getSigner(swapHash, _signature);
+        require(!revertedIcyHashes[revertHash], "ALREADY_PROCESSED");
+
+        // 3.0 Check if the signer is valid
+        address signer = getSigner(revertHash, _signature);
         require(signer == signerAddress, "INVALID_SIGNER");
 
-        // revert icy
+        // 4.0 revert icy
         icy.safeTransfer(msg.sender, icyAmount);
 
-        // emit swap event
+        // 5.0 emit revert event
         emit RevertIcy(icyAmount, btcAddress, btcAmount);
     }
 
@@ -113,6 +137,7 @@ contract IcyBtcSwap is Owned, EIP712 {
         uint256 icyAmount,
         string memory btcAddress,
         uint256 btcAmount,
+        uint256 nonce,
         uint256 deadline
     ) public view returns (bytes32 hash) {
         hash = _hashTypedData(
@@ -122,6 +147,28 @@ contract IcyBtcSwap is Owned, EIP712 {
                     icyAmount,
                     btcAddress,
                     btcAmount,
+                    nonce,
+                    deadline
+                )
+            )
+        );
+    }
+
+    function getRevertIcyHash(
+        uint256 icyAmount,
+        string memory btcAddress,
+        uint256 btcAmount,
+        uint256 nonce,
+        uint256 deadline
+    ) public view returns (bytes32 hash) {
+        hash = _hashTypedData(
+            keccak256(
+                abi.encode(
+                    REVERT_ICY_HASH,
+                    icyAmount,
+                    btcAddress,
+                    btcAmount,
+                    nonce,
                     deadline
                 )
             )
@@ -138,6 +185,7 @@ contract IcyBtcSwap is Owned, EIP712 {
         version = "1";
     }
 
+    // DO NOT USE THIS CONTRACT TO RECEIVE ETHER
     fallback() external {
         revert();
     }
