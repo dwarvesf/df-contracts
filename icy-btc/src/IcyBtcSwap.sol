@@ -145,7 +145,7 @@ contract IcyBtcSwap is Owned, EIP712 {
                 abi.encode(
                     SWAP_HASH,
                     icyAmount,
-                    btcAddress,
+                    keccak256(bytes(btcAddress)),
                     btcAmount,
                     nonce,
                     deadline
@@ -166,7 +166,7 @@ contract IcyBtcSwap is Owned, EIP712 {
                 abi.encode(
                     REVERT_ICY_HASH,
                     icyAmount,
-                    btcAddress,
+                    keccak256(bytes(btcAddress)),
                     btcAmount,
                     nonce,
                     deadline

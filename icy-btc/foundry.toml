@@ -4,4 +4,4 @@ out = "out"
 libs = ["lib"]
 
 eth_rpc_url = "https://sepolia.base.org"
-etherscan_api_key = "${BASESCAN_API_KEY}"
+etherscan_api_key = "D3PRBB2F5Y7PCWS98BJDJHDUHJ1AIDQZ8T"
