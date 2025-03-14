@@ -1,0 +1,24 @@
+# Full reference
+# https://onbjerg.github.io/foundry-book/reference/config.html
+
+[profile.default]
+solc_version = "0.8.29"
+optimizer = true
+optimizer_runs = 20000
+gas_reports = ["*"]
+test = 'tests'
+
+[profile.ci]
+verbosity = 4
+
+[rpc_endpoints]
+base = "${BASE_RPC}"
+base_sepolia = "${BASE_SEPOLIA_RPC}"
+
+[etherscan]
+base_sepolia = { key = "${ETHERSCAN_API_KEY}" }
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
