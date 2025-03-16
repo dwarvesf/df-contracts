@@ -11,8 +11,8 @@ contract UpgradeScript is Script {
     function run() external {
         vm.startBroadcast();
 
-        address PROXY_ADDRESS = 0x742D35Cc6634c0532925A3b844F5131B03f8d34c;
-        string memory INITIAL_URI = "https://example.com/metadata/{id}.json";
+        address PROXY_ADDRESS = 0x0000000000000000000000000000000000000000; // TODO: Replace with the address of the latest proxy contract you want to upgrade
+        string memory INITIAL_URI = "https://example.com/metadata/{id}.json"; // TODO: Replace with the initial URI for the NFT metadata
 
         // Deploy the new implementation contract
         DwarvesMemo newImplementation = new DwarvesMemo();
