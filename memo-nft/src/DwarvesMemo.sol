@@ -10,7 +10,10 @@ contract DwarvesMemo is
     OwnableUpgradeable,
     UUPSUpgradeable
 {
-    /** ------------------ EVENTS ------------------ */
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
+
     event TokenTypeCreated(uint256 indexed tokenId, string arweaveTxId);
     event TokenTypeUpdated(uint256 indexed tokenId, string newArweaveTxId);
     event TokenMinted(
@@ -19,7 +22,10 @@ contract DwarvesMemo is
         uint256 amount
     );
 
-    /** ------------------ STATE VARIABLES ------------------ */
+    /*//////////////////////////////////////////////////////////////
+                                 STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+
     mapping(uint256 => string) private _arweaveTxIds; // Maps tokenId to Arweave transaction ID
     mapping(address => bool) private _uniqueMinters; // Tracks unique minters
     uint256 private _uniqueMinterCount; // Counts unique minters
@@ -39,7 +45,9 @@ contract DwarvesMemo is
         __UUPSUpgradeable_init();
     }
 
-    /** ------------------ ADMIN FUNCTIONS ------------------ */
+    /*//////////////////////////////////////////////////////////////
+                                 ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Creates a new NFT type mapped to an Arweave transaction ID.
@@ -75,7 +83,9 @@ contract DwarvesMemo is
         emit TokenTypeUpdated(tokenId, newArweaveTxId);
     }
 
-    /** ------------------ PUBLIC FUNCTIONS ------------------ */
+    /*//////////////////////////////////////////////////////////////
+                                 PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Returns the Arweave gateway URL for the token's metadata.
@@ -125,7 +135,9 @@ contract DwarvesMemo is
         return _uniqueMinterCount;
     }
 
-    /** ------------------ UUPS UPGRADE AUTHORIZATION ------------------ */
+    /*//////////////////////////////////////////////////////////////
+                                 UUPS UPGRADE AUTHORIZATION
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Override to restrict upgrades to the owner.
