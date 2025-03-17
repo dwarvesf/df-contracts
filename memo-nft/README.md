@@ -46,8 +46,8 @@ We're developing an upgradable ERC1155 smart contract that integrates with Arwea
 
 ## Latest Deployments
 1. Testnet
-- [Implementation](https://sepolia.basescan.org/address/0x6B6F2fb06D8487337201e27eE54EB30f29A3216e)
-- [Proxy](https://sepolia.basescan.org/address/0x2934541b90a631e9C5ea70a4177475a2C5735916)
+- [Implementation](https://sepolia.basescan.org/address/0x1f784091d0CF09F5b04f63693B288308183B1528)
+- [Proxy](https://sepolia.basescan.org/address/0x856188FE0D2f0D7029664067D23807F19BAA28e7)
 
 2. Mainnet
 - ...

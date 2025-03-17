@@ -21,14 +21,20 @@ contract DwarvesMemo is
         uint256 indexed tokenId,
         uint256 amount
     );
+    event ArweaveGatewayUrlUpdated(string newArweaveGatewayUrl);
 
     /*//////////////////////////////////////////////////////////////
                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
 
+    string public _arweaveGatewayUrl = "https://arweave.developerdao.com/"; // The Arweave gateway URL
     mapping(uint256 => string) private _arweaveTxIds; // Maps tokenId to Arweave transaction ID
     mapping(address => bool) private _uniqueMinters; // Tracks unique minters
     uint256 private _uniqueMinterCount; // Counts unique minters
+
+    /*//////////////////////////////////////////////////////////////
+                                 CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -45,9 +51,18 @@ contract DwarvesMemo is
         __UUPSUpgradeable_init();
     }
 
+
     /*//////////////////////////////////////////////////////////////
                                  ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
+    function setArweaveGatewayUrl(string memory newArweaveGatewayUrl)
+        external
+        onlyOwner
+    {
+        _arweaveGatewayUrl = newArweaveGatewayUrl;
+        emit ArweaveGatewayUrlUpdated(newArweaveGatewayUrl);
+    }
 
     /**
      * @dev Creates a new NFT type mapped to an Arweave transaction ID.
@@ -100,7 +115,7 @@ contract DwarvesMemo is
         return
             string(
                 abi.encodePacked(
-                    "https://viewblock.io/arweave/tx/",
+                    _arweaveGatewayUrl,
                     _arweaveTxIds[tokenId]
                 )
             );
