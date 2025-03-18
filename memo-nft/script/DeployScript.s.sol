@@ -17,7 +17,7 @@ contract DeployScript is Script {
         DwarvesMemo implementation = new DwarvesMemo();
 
         // Deploy proxy contract
-        ERC1967Proxy proxy = new ERC1967Proxy(
+        new ERC1967Proxy(
             address(implementation),
             abi.encodeWithSelector(DwarvesMemo.initialize.selector, INITIAL_URI)
         );

@@ -4,8 +4,10 @@ pragma solidity ^0.8.29;
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract DwarvesMemo is
+    Initializable,
     ERC1155Upgradeable,
     OwnableUpgradeable,
     UUPSUpgradeable
@@ -27,10 +29,12 @@ contract DwarvesMemo is
                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
 
-    string public _arweaveGatewayUrl = "https://arweave.developerdao.com/"; // The Arweave gateway URL
-    mapping(uint256 => string) private _arweaveTxIds; // Maps tokenId to Arweave transaction ID
+    string public _arweaveGatewayUrl; // The Arweave gateway URL
+    mapping(string => uint256) private _arweaveTxIdToTokenId; // Maps Arweave transaction ID to tokenId
+    mapping(uint256 => string) private _tokenIdToArweaveTxId; // Maps tokenId to Arweave transaction ID
     mapping(address => bool) private _uniqueMinters; // Tracks unique minters
     uint256 private _uniqueMinterCount; // Counts unique minters
+    uint256 private _nextTokenId; // Auto-incrementing token ID counter
 
     /*//////////////////////////////////////////////////////////////
                                  CONSTRUCTOR
@@ -49,6 +53,10 @@ contract DwarvesMemo is
         __ERC1155_init(uri);
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
+
+        // Initialize state variables
+        _nextTokenId = 1;
+        _arweaveGatewayUrl = "https://arweave.developerdao.com/";
     }
 
 
@@ -65,25 +73,35 @@ contract DwarvesMemo is
     }
 
     /**
-     * @dev Creates a new NFT type mapped to an Arweave transaction ID.
-     * @param tokenId The ID of the new NFT type.
+     * @dev Creates a new NFT type based on an Arweave transaction ID.
      * @param arweaveTxId The Arweave transaction ID for the NFT metadata.
+     * @return The automatically assigned token ID.
      */
-    function createTokenType(uint256 tokenId, string memory arweaveTxId)
+    function createTokenType(string memory arweaveTxId)
         external
         onlyOwner
+        returns (uint256)
     {
         require(
-            bytes(_arweaveTxIds[tokenId]).length == 0,
-            "Token ID already exists"
+            bytes(arweaveTxId).length > 0,
+            "Arweave transaction ID cannot be empty"
         );
-        _arweaveTxIds[tokenId] = arweaveTxId;
+        require(
+            _arweaveTxIdToTokenId[arweaveTxId] == 0,
+            "Arweave transaction ID already in use"
+        );
+        
+        uint256 tokenId = _nextTokenId++;
+        _tokenIdToArweaveTxId[tokenId] = arweaveTxId;
+        _arweaveTxIdToTokenId[arweaveTxId] = tokenId;
+        
         emit TokenTypeCreated(tokenId, arweaveTxId);
+        return tokenId;
     }
 
     /**
      * @dev Updates the Arweave transaction ID for an existing token ID.
-     * @param tokenId The ID of the NFT type to update.
+     * @param tokenId The token ID to update.
      * @param newArweaveTxId The new Arweave transaction ID.
      */
     function updateTokenType(uint256 tokenId, string memory newArweaveTxId)
@@ -91,10 +109,24 @@ contract DwarvesMemo is
         onlyOwner
     {
         require(
-            bytes(_arweaveTxIds[tokenId]).length != 0,
-            "Token ID does not exist"
+            bytes(newArweaveTxId).length > 0,
+            "Arweave transaction ID cannot be empty"
         );
-        _arweaveTxIds[tokenId] = newArweaveTxId;
+        string memory oldArweaveTxId = _tokenIdToArweaveTxId[tokenId];
+        require(
+            bytes(oldArweaveTxId).length > 0,
+            "Token type does not exist"
+        );
+        require(
+            _arweaveTxIdToTokenId[newArweaveTxId] == 0,
+            "New Arweave transaction ID already in use"
+        );
+        
+        // Update mappings
+        _arweaveTxIdToTokenId[oldArweaveTxId] = 0;
+        _tokenIdToArweaveTxId[tokenId] = newArweaveTxId;
+        _arweaveTxIdToTokenId[newArweaveTxId] = tokenId;
+        
         emit TokenTypeUpdated(tokenId, newArweaveTxId);
     }
 
@@ -104,32 +136,44 @@ contract DwarvesMemo is
 
     /**
      * @dev Returns the Arweave gateway URL for the token's metadata.
-     * @param tokenId The ID of the NFT type.
+     * @param tokenId The token ID.
      * @return The Arweave gateway URL.
      */
     function readNFT(uint256 tokenId) external view returns (string memory) {
+        string memory arweaveTxId = _tokenIdToArweaveTxId[tokenId];
         require(
-            bytes(_arweaveTxIds[tokenId]).length != 0,
-            "Token ID does not exist"
+            bytes(arweaveTxId).length > 0,
+            "Token type does not exist"
         );
         return
             string(
                 abi.encodePacked(
                     _arweaveGatewayUrl,
-                    _arweaveTxIds[tokenId]
+                    arweaveTxId
                 )
             );
     }
 
     /**
+     * @dev Returns the token ID for a given Arweave transaction ID.
+     * @param arweaveTxId The Arweave transaction ID.
+     * @return The corresponding token ID.
+     */
+    function getTokenId(string memory arweaveTxId) external view returns (uint256) {
+        uint256 tokenId = _arweaveTxIdToTokenId[arweaveTxId];
+        require(tokenId != 0, "Token type does not exist");
+        return tokenId;
+    }
+
+    /**
      * @dev Mints tokens of an existing NFT type.
-     * @param tokenId The ID of the NFT type to mint.
+     * @param tokenId The token ID of the NFT type to mint.
      * @param amount The number of tokens to mint.
      */
     function mintNFT(uint256 tokenId, uint256 amount) external {
         require(
-            bytes(_arweaveTxIds[tokenId]).length != 0,
-            "Token ID does not exist"
+            bytes(_tokenIdToArweaveTxId[tokenId]).length > 0,
+            "Token type does not exist"
         );
         _mint(msg.sender, tokenId, amount, "");
 
