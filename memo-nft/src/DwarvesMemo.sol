@@ -35,6 +35,7 @@ contract DwarvesMemo is
     mapping(address => bool) private _uniqueMinters; // Tracks unique minters
     uint256 private _uniqueMinterCount; // Counts unique minters
     uint256 private _nextTokenId; // Auto-incrementing token ID counter
+    mapping(uint256 => uint256) private _tokenMintCount; // Tracks total mints per tokenId
 
     /*//////////////////////////////////////////////////////////////
                                  CONSTRUCTOR
@@ -177,6 +178,9 @@ contract DwarvesMemo is
         );
         _mint(msg.sender, tokenId, amount, "");
 
+        // Update mint count for this tokenId
+        _tokenMintCount[tokenId] += amount;
+
         // Track unique minters
         if (!_uniqueMinters[msg.sender]) {
             _uniqueMinters[msg.sender] = true;
@@ -184,6 +188,19 @@ contract DwarvesMemo is
         }
 
         emit TokenMinted(msg.sender, tokenId, amount);
+    }
+
+    /**
+     * @dev Returns the total number of tokens minted for a specific tokenId.
+     * @param tokenId The token ID to query.
+     * @return The total number of tokens minted for the given tokenId.
+     */
+    function getMintCountByTokenId(uint256 tokenId) external view returns (uint256) {
+        require(
+            bytes(_tokenIdToArweaveTxId[tokenId]).length > 0,
+            "Token type does not exist"
+        );
+        return _tokenMintCount[tokenId];
     }
 
     /**
