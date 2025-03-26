@@ -5,12 +5,14 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract DwarvesMemo is
     Initializable,
     ERC1155Upgradeable,
     OwnableUpgradeable,
-    UUPSUpgradeable
+    UUPSUpgradeable,
+    AccessControlUpgradeable
 {
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -18,11 +20,7 @@ contract DwarvesMemo is
 
     event TokenTypeCreated(uint256 indexed tokenId, string arweaveTxId);
     event TokenTypeUpdated(uint256 indexed tokenId, string newArweaveTxId);
-    event TokenMinted(
-        address indexed to,
-        uint256 indexed tokenId,
-        uint256 amount
-    );
+    event TokenMinted(address indexed to, uint256 indexed tokenId, uint256 amount);
     event ArweaveGatewayUrlUpdated(string newArweaveGatewayUrl);
 
     /*//////////////////////////////////////////////////////////////
@@ -36,6 +34,11 @@ contract DwarvesMemo is
     uint256 private _uniqueMinterCount; // Counts unique minters
     uint256 private _nextTokenId; // Auto-incrementing token ID counter
     mapping(uint256 => uint256) private _tokenMintCount; // Tracks total mints per tokenId
+
+    /*//////////////////////////////////////////////////////////////
+                                 CONSTANTS
+    //////////////////////////////////////////////////////////////*/
+    bytes32 public constant NFT_CREATOR_ROLE = keccak256("NFT_CREATOR_ROLE");
 
     /*//////////////////////////////////////////////////////////////
                                  CONSTRUCTOR
@@ -54,21 +57,26 @@ contract DwarvesMemo is
         __ERC1155_init(uri);
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
+        __AccessControl_init();
+
+        // Grant the contract deployer the default admin role and minter role
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(NFT_CREATOR_ROLE, msg.sender);
 
         // Initialize state variables
         _nextTokenId = 1;
         _arweaveGatewayUrl = "https://arweave.developerdao.com/";
     }
 
-
     /*//////////////////////////////////////////////////////////////
                                  ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function setArweaveGatewayUrl(string memory newArweaveGatewayUrl)
-        external
-        onlyOwner
-    {
+    function grantCreateNftRole(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(NFT_CREATOR_ROLE, account);
+    }
+
+    function setArweaveGatewayUrl(string memory newArweaveGatewayUrl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _arweaveGatewayUrl = newArweaveGatewayUrl;
         emit ArweaveGatewayUrlUpdated(newArweaveGatewayUrl);
     }
@@ -78,24 +86,14 @@ contract DwarvesMemo is
      * @param arweaveTxId The Arweave transaction ID for the NFT metadata.
      * @return The automatically assigned token ID.
      */
-    function createTokenType(string memory arweaveTxId)
-        external
-        onlyOwner
-        returns (uint256)
-    {
-        require(
-            bytes(arweaveTxId).length > 0,
-            "Arweave transaction ID cannot be empty"
-        );
-        require(
-            _arweaveTxIdToTokenId[arweaveTxId] == 0,
-            "Arweave transaction ID already in use"
-        );
-        
+    function createTokenType(string memory arweaveTxId) external onlyRole(NFT_CREATOR_ROLE) returns (uint256) {
+        require(bytes(arweaveTxId).length > 0, "Arweave transaction ID cannot be empty");
+        require(_arweaveTxIdToTokenId[arweaveTxId] == 0, "Arweave transaction ID already in use");
+
         uint256 tokenId = _nextTokenId++;
         _tokenIdToArweaveTxId[tokenId] = arweaveTxId;
         _arweaveTxIdToTokenId[arweaveTxId] = tokenId;
-        
+
         emit TokenTypeCreated(tokenId, arweaveTxId);
         return tokenId;
     }
@@ -105,29 +103,17 @@ contract DwarvesMemo is
      * @param tokenId The token ID to update.
      * @param newArweaveTxId The new Arweave transaction ID.
      */
-    function updateTokenType(uint256 tokenId, string memory newArweaveTxId)
-        external
-        onlyOwner
-    {
-        require(
-            bytes(newArweaveTxId).length > 0,
-            "Arweave transaction ID cannot be empty"
-        );
+    function updateTokenType(uint256 tokenId, string memory newArweaveTxId) external onlyRole(NFT_CREATOR_ROLE) {
+        require(bytes(newArweaveTxId).length > 0, "Arweave transaction ID cannot be empty");
         string memory oldArweaveTxId = _tokenIdToArweaveTxId[tokenId];
-        require(
-            bytes(oldArweaveTxId).length > 0,
-            "Token type does not exist"
-        );
-        require(
-            _arweaveTxIdToTokenId[newArweaveTxId] == 0,
-            "New Arweave transaction ID already in use"
-        );
-        
+        require(bytes(oldArweaveTxId).length > 0, "Token type does not exist");
+        require(_arweaveTxIdToTokenId[newArweaveTxId] == 0, "New Arweave transaction ID already in use");
+
         // Update mappings
         _arweaveTxIdToTokenId[oldArweaveTxId] = 0;
         _tokenIdToArweaveTxId[tokenId] = newArweaveTxId;
         _arweaveTxIdToTokenId[newArweaveTxId] = tokenId;
-        
+
         emit TokenTypeUpdated(tokenId, newArweaveTxId);
     }
 
@@ -142,17 +128,8 @@ contract DwarvesMemo is
      */
     function readNFT(uint256 tokenId) external view returns (string memory) {
         string memory arweaveTxId = _tokenIdToArweaveTxId[tokenId];
-        require(
-            bytes(arweaveTxId).length > 0,
-            "Token type does not exist"
-        );
-        return
-            string(
-                abi.encodePacked(
-                    _arweaveGatewayUrl,
-                    arweaveTxId
-                )
-            );
+        require(bytes(arweaveTxId).length > 0, "Token type does not exist");
+        return string(abi.encodePacked(_arweaveGatewayUrl, arweaveTxId));
     }
 
     /**
@@ -196,10 +173,7 @@ contract DwarvesMemo is
      * @return The total number of tokens minted for the given tokenId.
      */
     function getMintCountByTokenId(uint256 tokenId) external view returns (uint256) {
-        require(
-            bytes(_tokenIdToArweaveTxId[tokenId]).length > 0,
-            "Token type does not exist"
-        );
+        require(bytes(_tokenIdToArweaveTxId[tokenId]).length > 0, "Token type does not exist");
         return _tokenMintCount[tokenId];
     }
 
@@ -218,9 +192,18 @@ contract DwarvesMemo is
     /**
      * @dev Override to restrict upgrades to the owner.
      */
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        override
-        onlyOwner
-    {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }

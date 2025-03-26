@@ -11,7 +11,8 @@ contract UpgradeScript is Script {
     function run() external {
         vm.startBroadcast();
 
-        address PROXY_ADDRESS = 0xb1e052156676750D193D800D7D91eA0C7cEeAdF0; // TODO: Replace with the address of the latest proxy contract you want to upgrade
+        // TODO: Replace with the address of the latest proxy contract you want to upgrade
+        address PROXY_ADDRESS = 0x07f3ed54e0b2D07cC522c4FC12EbA80E6D3A8DeB;
 
         // Deploy the new implementation contract
         DwarvesMemo newImplementation = new DwarvesMemo();
