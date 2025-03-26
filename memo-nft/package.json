@@ -1,0 +1,31 @@
+{
+  "name": "@df/memo-nft",
+  "description": "Memo NFT",
+  "version": "1.0.0",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.2.0",
+    "@openzeppelin/foundry-upgrades": "OpenZeppelin/openzeppelin-foundry-upgrades",
+    "openzeppelin-solidity": "OpenZeppelin/openzeppelin-contracts-upgradeable"
+  },
+  "devDependencies": {
+    "forge-std": "github:foundry-rs/forge-std#v1.8.1",
+    "prettier": "^3.0.0",
+    "solhint": "^3.6.2"
+  },
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf cache out",
+    "build": "forge build",
+    "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:sol": "forge fmt --check && bun solhint \"{script,src,tests}/**/*.sol\"",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\" --ignore-path \".prettierignore\"",
+    "test": "forge test -vvv",
+    "test:coverage": "forge coverage",
+    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",
+    "deploy:testnet": "forge script script/DeployScript.s.sol:DeployScript --rpc-url base_sepolia --private-key $(grep WALLET_PRIVATE_KEY .env | cut -d '=' -f2) --broadcast --verify -vvvv",
+    "upgrade:testnet": "forge script script/UpgradeScript.s.sol:UpgradeScript --rpc-url base_sepolia --private-key $(grep WALLET_PRIVATE_KEY .env | cut -d '=' -f2) --broadcast --verify -vvvv",
+    "deploy:mainnet": "forge script script/DeployScript.s.sol:DeployScript --rpc-url base --private-key $(grep WALLET_PRIVATE_KEY .env | cut -d '=' -f2) --broadcast --verify -vvvv",
+    "upgrade:mainnet": "forge script script/UpgradeScript.s.sol:UpgradeScript --rpc-url base --private-key $(grep WALLET_PRIVATE_KEY .env | cut -d '=' -f2) --broadcast --verify -vvvv"
+  }
+}
